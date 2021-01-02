@@ -1,0 +1,3 @@
+[submodule "server/webrtc-working-example"]
+	path = server/webrtc-working-example
+	url = https://github.com/csik/webrtc-working-example.git

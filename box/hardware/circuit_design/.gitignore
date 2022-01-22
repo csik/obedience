@@ -1,0 +1,4 @@
+# KiCad 6 ignores
+fp-info-cache
+*-backups
+*kicad_prl

@@ -1,0 +1,1 @@
+print("TODO: write script to test the switch reader functionality")

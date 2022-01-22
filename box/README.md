@@ -1,3 +1,2 @@
-# obedience box code
+# Obedience Box Design Files
 
-raspi oriented hardware code.

@@ -8,7 +8,8 @@ panel = (
 )
 
 # cut the voltage switches
-offset = VOLTAGE_SWITCH_TOTAL_X_SPACING / 2.0
+offset = ((NUM_VOLTAGE_SWITCHES - 1) * VOLTAGE_SWITCH_X_SPACING) / 2.0
+
 for i in range(NUM_VOLTAGE_SWITCHES):
     center_x = i * VOLTAGE_SWITCH_X_SPACING - offset
 
@@ -30,6 +31,29 @@ panel = (
         VOLTAGE_LAMP_NUM_ROWS
     )
     .hole(VOLTAGE_LAMP_DIAMETER)
+)
+
+# cut the vernier dials
+panel = (
+    attenuator_dial.cut(
+        panel,
+        ATTENUATOR_DIAL_COORD
+    )
+)
+
+panel = (
+    phase_dial.cut(
+        panel,
+        PHASE_DIAL_COORD
+    )
+)
+
+# cut the voltmeter
+panel = (
+    voltmeter.cut(
+        panel,
+        VOLTMETER_COORD
+    )
 )
 
 # cut the misc. holes

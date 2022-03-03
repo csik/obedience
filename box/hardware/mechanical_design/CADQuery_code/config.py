@@ -1,4 +1,5 @@
 from voltage_switch import Mossman_4PDT_Leaf_Switch
+from triangular_mounting_hole_components import Philmore_S36, Philmore_S50, Voltmeter_62C2
 import os
 
 # TODO: All dimensions are rough guesses. Once we have accurate dimensions,
@@ -28,9 +29,6 @@ NUM_VOLTAGE_SWITCHES = 30
 
 VOLTAGE_SWITCH_X_SPACING = 30
 
-VOLTAGE_SWITCH_TOTAL_X_SPACING = (NUM_VOLTAGE_SWITCHES - 1) * \
-    VOLTAGE_SWITCH_X_SPACING
-
 VOLTAGE_SWITCH_CENTER_Y = -50
 
 NUM_VOLTAGE_LAMPS = NUM_VOLTAGE_SWITCHES
@@ -47,6 +45,24 @@ VOLTAGE_LAMP_NUM_ROWS = 1
 
 switch = Mossman_4PDT_Leaf_Switch()
 
+################################################################################
+#
+# LARGE VERNIER DIALS
+#
+################################################################################
+attenuator_dial = Philmore_S36()
+ATTENUATOR_DIAL_COORD = (0, 50)
+
+phase_dial = Philmore_S50()
+PHASE_DIAL_COORD = (150, 75)
+
+################################################################################
+#
+# ANALOG VOLTMETER
+#
+################################################################################
+voltmeter = Voltmeter_62C2()
+VOLTMETER_COORD = (330, 75)
 
 ################################################################################
 #
@@ -62,24 +78,11 @@ misc_holes = {
         "diameter": 16,
         "coordinates": (-120, 100)
     },
-    "attenuator knob": {
-        "diameter": 30,
-        "coordinates": (0, 50)
-    },
     "energizer lamp": {
         "diameter": 16,
         "coordinates": (0, 100)
-    },
-    "phase knob": {
-        "diameter": 50,
-        "coordinates": (150, 75)
-    },
-    "voltage meter": {
-        "diameter": 70,
-        "coordinates": (330, 75)
     }
 }
-
 
 ################################################################################
 #

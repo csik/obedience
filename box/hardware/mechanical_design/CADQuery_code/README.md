@@ -13,4 +13,4 @@
 - The general scaffolding for the code is in place, but incomplete
 - All measurements are rough guesses until we learn the accurate dimensions
 - Some components are simplified placeholders, such as the voltage meter and multi-turn pots
-- Text and graphical lines are not included yet
+- Not all text and graphical lines are included yet

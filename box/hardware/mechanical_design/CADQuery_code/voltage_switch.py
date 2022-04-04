@@ -43,8 +43,6 @@ class Mossman_4PDT_Leaf_Switch(Voltage_Switch):
         # cut the slot
         panel = (
             panel
-            .faces(">Z")
-            .workplane()
             .moveTo(*coord)
             .slot2D(self.SLOT_LENGTH, self.SLOT_WIDTH, self.PERPENDICULAR)
             .cutThruAll()
@@ -53,8 +51,6 @@ class Mossman_4PDT_Leaf_Switch(Voltage_Switch):
         # cut the four mounting holes
         panel = (
             panel
-            .faces(">Z")
-            .workplane()
             .moveTo(*coord)
             .rect(
                 self.MOUNTING_HOLE_X_SPACING,

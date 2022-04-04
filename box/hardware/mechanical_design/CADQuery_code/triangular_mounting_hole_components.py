@@ -22,8 +22,7 @@ class Triangular_Mounting_Hole_Component():
             the modified panel.
         '''
         panel = (
-            panel.faces(">Z")
-            .workplane()
+            panel
             .center(*coord)
             .polarArray(  # the triangular mounting holes
                 radius=self.mounting_hole_dist_from_center,

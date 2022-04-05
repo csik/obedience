@@ -3,7 +3,7 @@
 ## Small pcb to test the switch reading circuit
 
 ## Brief description:
-Two MCP23S18 GPIO expander chips are driven by SPI.
+Two PCA9555D GPIO expander chips are driven by I2C.
 
 ![pcb front](./pics/pcb_front.png)
 ![pcb rear](./pics/pcb_rear.png)

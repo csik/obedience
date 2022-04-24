@@ -35,7 +35,8 @@ class UI_Switches:
 
     def __init__(self, bus, addr_0_15, addr_16_31) -> None:
         '''
-        Initialize the UI Switches with the given I2C bus object.
+        Initialize the UI Switches with the given I2C bus object and addresses
+        of the two PCA9555D I2C chips.
 
         Args:
             bus: the I2C device to use
@@ -51,10 +52,9 @@ class UI_Switches:
         Read the switches in a single PCA9555D bank as one 16 bit word.
 
         Args:
-            bank: the chip to use, either 0 or 1.
+            addr: the I2C address of the chip to read.
 
         Raises:
-            IndexError if bank is not in [0, 1]
             OSError if there is a communication error with either of the PCA9555D
         '''
         bits_0_to_7 = self.bus.read_byte_data(

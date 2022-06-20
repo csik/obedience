@@ -14,6 +14,6 @@ Task | Status |
 ---------|--------------|
 Schematic capture | &#9745;
 PCB layout | &#9745;
-Test build | &#9744;
-Safe to order boards| &#9744;
-Python test script | &#9744;
+Test build | &#9745;
+Safe to order boards| &#9745;
+Python test script | &#9745;

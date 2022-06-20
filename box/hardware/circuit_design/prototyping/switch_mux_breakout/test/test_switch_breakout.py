@@ -30,6 +30,10 @@ class UI_Switches:
     Requires:
       - Shared use of I2C bus.
     '''
+    NUM_SWITCHES = 32 # total number of switches
+    NUM_V_SWITCHES = 30 # just the voltage switches
+    V_SWITCH_MASK = 0x3FFF_FFFF # binary mask to extract just the voltage switches
+
     INPUT_PORT_0 = 0
     INPUT_PORT_1 = 1
 
@@ -47,12 +51,15 @@ class UI_Switches:
         self.addr_0_15 = addr_0_15
         self.addr_16_31 = addr_16_31
 
+        self.cached_read = self.read_multi()
+
     def _read_bank(self, addr: int) -> int:
         '''
-        Read the switches in a single PCA9555D bank as one 16 bit word.
+        `_read_bank(addr)` the switches in a single PCA9555D bank at I2c address
+        `addr` as one 16 bit word.
 
         Args:
-            addr: the I2C address of the chip to read.
+            `addr`: the address of the chip to read.
 
         Raises:
             OSError if there is a communication error with either of the PCA9555D
@@ -67,8 +74,13 @@ class UI_Switches:
 
     def read_multi(self) -> int:
         '''
-        Read the value of all switches at once as a 32 bit word where switch 0
-        is the LSB and switch 31 is the MSB.
+        `read_multi()` is the value of all switches at once as a 32 bit word 
+        where switch 0 is the LSB and switch 31 is the MSB.
+
+        Examples:
+            - no switches are on -> 0x0000_0000
+            - switch 0 is on -> 0x0000_0001
+            - switches 2, 5, 19, and 30 are on -> 0x4008_0024
 
         Raises:
             OSError if there is a communication error with either of the PCA9555D
@@ -76,22 +88,73 @@ class UI_Switches:
         bits_0_15 = self._read_bank(self.addr_0_15)
         bits_16_31 = self._read_bank(self.addr_16_31)
 
-        return bits_16_31 << 16 | bits_0_15
+        self.cached_read = bits_16_31 << 16 | bits_0_15
+
+        return self.cached_read
 
     def read_single(self, switch_num: int) -> int:
         '''
-        Read a single switch as the integer value 0 or 1.
+        `read_single(switch_num)` the integer value 0 or 1 of the switch at 
+        position `switch_num`.
 
         Args:
-            switch_num (int): the switch number to read, in [0..31]
+            `switch_num` (int): the switch number to read, in [0..31]
 
         Raises:
             OSError if there is a communication error with either of the PCA9555D
-
         '''
         if not 0 <= switch_num <= 31:
             return 0
         return (self.read_multi() >> switch_num) & 1
+
+    def get_shock_level(self) -> int:
+        '''
+        `get_shock_level()` is the position of the highest "on" voltage switch.
+        A result of 0 means that none of the switches are on. A result of an 
+        integer `n` in the range [1..30] means that `n` is the highest of
+        the switches that are currently in the "on" position. The returned value 
+        is one-higher than the bit position of the highest switch, to account
+        for the zero setting where no switches are on.
+
+        Examples:
+            - all switches are off -> 0
+            - switch 0 is on and all others are off -> 1
+            - switches 3, 7, and 14 are on -> 15
+
+        Raises:
+            OSError if there is a communication error with either of the PCA9555D
+        '''
+        # ignore the aux switches
+        n = self.read_multi() & self.V_SWITCH_MASK
+
+        # look from high to low for a switch that is on
+        for i in reversed(range(self.NUM_V_SWITCHES)):
+            print(i)
+            if ((n >> i) & 1) == 1:
+                return i + 1
+
+        # if we get here all the switches are off
+        return 0
+
+    def get_aux_switch_1(self) -> int:
+        '''
+        `get_aux_switch_1()` is the state of aux switch 1, which is the 30th
+        switch. Returns either 0 or 1.
+
+        Raises:
+            OSError if there is a communication error with either of the PCA9555D
+        '''
+        return (self.read_multi() >> 30) & 1
+
+    def get_aux_switch_2(self) -> int:
+        '''
+        `get_aux_switch_2()` is the state of aux switch 2, which is the 31st
+        switch. Returns either 0 or 1.
+
+        Raises:
+            OSError if there is a communication error with either of the PCA9555D
+        '''
+        return (self.read_multi() >> 31) & 1
 
 
 def do_demo():
@@ -104,6 +167,7 @@ def do_demo():
     bus = smbus.SMBus(I2C_CHANNEL)
 
     # change these addresses to suit your physical board setup
+    # note that valid address are in the range [0x20, 0x27]
     PCA9555D_0_ADDR = 0x20
     PCA9555D_1_ADDR = 0x21
 
@@ -113,6 +177,7 @@ def do_demo():
         val_ui32 = ui_switches.read_multi()
 
         print(f"{val_ui32:32_b}")
+        print(ui_switches.get_shock_level())
         time.sleep(.5)
 
 

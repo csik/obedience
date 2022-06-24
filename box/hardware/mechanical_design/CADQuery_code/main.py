@@ -10,294 +10,155 @@ panel = (
 
 face = panel.faces(">Z").workplane()
 
-VOLTAGE_SWITCH_X_OFFSET = ((NUM_VOLTAGE_SWITCHES - 1)
-                           * VOLTAGE_SWITCH_X_SPACING) / 2.0
-
-
-def add_text(face, coord, text, fontsize=FONTSIZE_MEDIUM, fontPath=None, halign='center', valign='center'):
-    '''
-    Add generic text to the given face and return the modified face
-    '''
-    face = (
-        face
-        .center(coord[0], coord[1])
-        .text(
-            text,
-            fontsize=fontsize,
-            distance=-ENGRAVE_DEPTH,
-            combine='cut',
-            fontPath=fontPath,
-            halign=halign,
-            valign=valign
-        )
-        .center(-coord[0], -coord[1])
-    )
-    return face
-
-
-def add_warning_text(face):
-    '''
-    Add some warning text to make it clear that the panel is not
-    ready to be ordered yet.
-    '''
-    face = add_text(
-        face,
-        (-350, 200),
-        "WARNING: WIP",
-        24
-    )
-    face = add_text(
-        face,
-        (-350, 180),
-        "Not ready to order",
-        18
-    )
-
-    return face
+VOLTAGE_SWITCH_X_OFFSET = ((voltage_switch["num switches"] - 1)
+                           * voltage_switch["x spacing"]) / 2.0
 
 
 def cut_voltage_switches(face):
     '''
     Cut the voltage switches in the given face and return the modified face
     '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        face = switch.cut(
-            face,
-            (center_x, VOLTAGE_SWITCH_CENTER_Y)
+    face = (
+        face
+        .center(X_ORIGIN, voltage_switch["center y"])
+        .rarray(
+            voltage_switch["x spacing"],
+            voltage_switch["y spacing"],
+            voltage_switch["num switches"],
+            voltage_switch["num rows"]
         )
+        .slot2D(
+            voltage_switch["slot length"],
+            voltage_switch["slot width"],
+            voltage_switch["perpendicular"]
+        )
+        .cutThruAll()
+        .center(-X_ORIGIN, -voltage_switch["center y"])
+    )
     return face
 
 
 def cut_voltage_lamps(face):
     '''
     Cut the voltage lamps in the given face and return the modified face.
-    These are the 30 round numbered lamps above the voltage switches. 
+    These are the 30 round numbered lamps above the voltage switches.
     '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        face = (
-            face
-            .moveTo(center_x, VOLTAGE_LAMP_CENTER_Y)
-            .hole(VOLTAGE_LAMP_DIAMETER)
+    face = (
+        face
+        .center(X_ORIGIN, voltage_lamp["lamp center y"])
+        .rarray(
+            voltage_lamp["x spacing"],
+            voltage_lamp["y spacing"],
+            voltage_lamp["num lamps"],
+            voltage_lamp["num rows"]
         )
-    return face
-
-
-def add_voltage_lamp_nums(face):
-    '''
-    Add the labels 1..30 above the voltage lamps.
-    '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        face = add_text(
-            face,
-            (
-                center_x,
-                VOLTAGE_LAMP_NUMS_CENTER_Y
-            ),
-            str(i + 1)
-        )
-    return face
-
-
-def add_voltage_intensity_text(face):
-    '''
-    Add the shock intensity text below the voltage switches. Starting with 
-    "SLIGHT SHOCK" below the first switch, skipping 3 switches, then 
-    "MODERATE SHOCK" below the 5th switch, etc
-    '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        # start at the 1st switch and do every 4th switch
-        if i % 4 == 0 and i < LAST_VOLTAGE_INTENSITY_TEXT_POS:
-            for txt in voltage_intensity_text["label"][i // 4]:
-                face = add_text(
-                    face,
-                    (
-                        center_x,
-                        voltage_intensity_text["center y"] + txt["y offset"]
-                    ),
-                    txt["body"],
-                    voltage_intensity_text["fontsize"]
-                )
-
-    # there is an "X X X" at the high-voltage end of the intensity text
-    start_of_triple_X = (NUM_VOLTAGE_SWITCHES - 2) * \
-        VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-    face = add_text(
-        face,
-        (
-            start_of_triple_X,
-            voltage_intensity_text["center y"]
-        ),
-        "X  X  X",
-        voltage_intensity_text["fontsize"]
+        .hole(voltage_lamp["diameter"])
+        .center(-X_ORIGIN, -voltage_lamp["lamp center y"])
     )
-    return face
-
-
-def add_big_voltage_labels(face):
-    '''
-    Add the big voltage labels between the voltage switches and the lamps,
-    "15 volts", [skip 3 switches], "75 vots", [skip 3 switches], "135 VOLTS", etc.
-    The last two switches don't follow the normal patter, they are also added here.
-    '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        # start at the 1st switch and do every 4th switch
-        if i % 4 == 0 and i < LAST_VOLTAGE_INTENSITY_TEXT_POS:
-            face = add_text(
-                face,
-                (
-                    center_x,
-                    VOLTAGE_LABEL_CENTER_Y + VOLTAGE_LABEL_BIG_TEXT_OFFSET,
-                    FONTSIZE_MEDIUM
-                ),
-                str((i + 1) * VOLTAGE_SWITCH_STARTING_VOLTAGE)
-            )
-            face = add_text(
-                face,
-                (
-                    center_x,
-                    VOLTAGE_LABEL_CENTER_Y - VOLTAGE_LABEL_BIG_TEXT_OFFSET,
-                    FONTSIZE_MEDIUM
-                ),
-                "VOLTS"
-            )
-        # the last two switches have a different pattern, big voltage lettering here,
-        # "435 VOLTS" and "450 VOLTS"
-        elif i >= NUM_VOLTAGE_SWITCHES - 2:
-            face = add_text(
-                face,
-                (
-                    center_x,
-                    VOLTAGE_LABEL_CENTER_Y + VOLTAGE_LABEL_BIG_TEXT_OFFSET,
-                    FONTSIZE_MEDIUM
-                ),
-                str((i + 1) * VOLTAGE_SWITCH_STARTING_VOLTAGE)
-            )
-            face = add_text(
-                face,
-                (
-                    center_x,
-                    VOLTAGE_LABEL_CENTER_Y - VOLTAGE_LABEL_BIG_TEXT_OFFSET,
-                    FONTSIZE_MEDIUM
-                ),
-                "VOLTS"
-            )
-    return face
-
-
-def add_small_voltage_labels(face):
-    '''
-    Add the small voltage labels between the voltage switches and the lamps,
-    [skip the 1st switch], "30 V.", "45 V.", "60 V.", [skip the 5th switch], etc
-    '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        if i % 4 == 0 or i >= NUM_VOLTAGE_SWITCHES - 2:
-            pass  # this is where the bigger labels go
-        else:
-            face = add_text(
-                face,
-                (
-                    center_x,
-                    VOLTAGE_LABEL_CENTER_Y - VOLTAGE_LABEL_SMALL_TEXT_OFFSET,
-                    FONTSIZE_SMALL
-                ),
-                str((i + 1) * VOLTAGE_SWITCH_STARTING_VOLTAGE) + " V."
-            )
-    return face
-
-
-def add_horizontal_lines_above_switches(face):
-    '''
-    Add the horizontal lines above the voltage switches.
-    '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        # start at the 3rd switch and do every 4th switch
-        if (i + 2) % 4 == 0:
-            face = (
-                face
-                .center(center_x, VOLTAGE_LABEL_CENTER_Y)
-                .rect(
-                    VOLTAGE_LABEL_HORIZ_LINE_LENGTHS[(i + 1) // 4],
-                    LINE_WIDTH
-                )
-                .cutBlind(-ENGRAVE_DEPTH)
-                .center(-center_x, -VOLTAGE_LABEL_CENTER_Y)
-            )
-    return face
-
-
-def add_horizontal_lines_below_switches(face):
-    '''
-    Add the horizontal lines below the voltage switches.
-    '''
-    for i in range(NUM_VOLTAGE_SWITCHES):
-        center_x = i * VOLTAGE_SWITCH_X_SPACING - VOLTAGE_SWITCH_X_OFFSET
-
-        if (i + 2) % 4 == 0:
-            face = (
-                face
-                .center(center_x, voltage_intensity_text["center y"])
-                .rect(
-                    VOLTAGE_INTENSITY_HORIZ_LINE_LENGTHS[(i + 1) // 4],
-                    LINE_WIDTH
-                )
-                .cutBlind(-ENGRAVE_DEPTH)
-                .center(-center_x, -voltage_intensity_text["center y"])
-            )
     return face
 
 
 def add_horizontal_lines(face):
     '''
-    Add the horizontal lines above and below the voltage switches.
+    Add the horizontal lines above and below the voltage switches
+    and return the modified face.
     '''
-    face = add_horizontal_lines_above_switches(face)
-    face = add_horizontal_lines_below_switches(face)
+    def add_h_lines(face, endpoints, center_y):
+        for pts in endpoints:
+
+            center_x = (pts[0] + pts[1])/2
+            line_len = abs(pts[0] - pts[1])
+
+            face = (
+                face.
+                center(center_x, center_y)
+                .rect(
+                    line_len,
+                    LINE_WIDTH
+                )
+                .cutBlind(ENGRAVE_DEPTH)
+                .center(-center_x, -center_y)
+            )
+        return face
+
+    face = add_h_lines(
+        face,
+        voltage_label_lines["endpoints"],
+        voltage_label_lines["center y"]
+    )
+
+    face = add_h_lines(
+        face,
+        voltage_intensity_lines["endpoints"],
+        voltage_intensity_lines["center y"]
+    )
+
+    return face
+
+
+def add_small_vertical_bars(face):
+    '''
+    Add the small vertical bars at the rightmost ends
+    of the horizontal lines and return the modified face
+    '''
+    def add_v_lines(face, center_y):
+        center_x = small_vertical_bars["x coord"]
+
+        line_len = small_vertical_bars["height"]
+
+        face = (
+            face.
+            center(center_x, center_y)
+            .rect(
+                LINE_WIDTH,
+                line_len,
+            )
+            .cutBlind(ENGRAVE_DEPTH)
+            .center(-center_x, -center_y)
+        )
+        return face
+
+    face = add_v_lines(
+        face,
+        voltage_label_lines["center y"]
+    )
+
+    face = add_v_lines(
+        face,
+        voltage_intensity_lines["center y"]
+    )
     return face
 
 
 def cut_vernier_dials(face):
     '''
-    Cut the vernier dials and the voltmater.
+    Cut the vernier dials and the voltmeter and return the modified face.
     '''
     for _, dial in dials.items():
+        coord = dial["coordinate"]
         face = (
-            dial["model"].cut(
-                face,
-                dial["coordinate"]
+            face
+            .center(*coord)
+            .polarArray(  # the triangular mounting holes
+                radius=dial["model"]["mounting hole dist"],
+                startAngle=90,
+                angle=120,
+                count=3,
+                fill=False
             )
+            .hole(dial["model"]["mounting hole dia"])
+            .center(-coord[0], -coord[1])  # recenter the origin
+            .workplane()
+            .moveTo(*coord)
+            .hole(dial["model"]["center hole dia"])  # the center hole
         )
-
-        for txt in dial["text"]:
-            face = add_text(
-                face,
-                (
-                    dial["coordinate"][0] + txt["offset"][0],
-                    dial["coordinate"][1] + txt["offset"][1],
-                ),
-                txt["body"],
-                txt["fontsize"]
-            )
     return face
 
 
 def cut_misc_holes(face):
     '''
     Cut the various holes, power switch, misc lamps, and misc holes
+    and return the modified face.
     '''
     for _, hole in misc_holes.items():
         face = (
@@ -306,31 +167,23 @@ def cut_misc_holes(face):
             .hole(hole["diameter"])
         )
 
-        for txt in hole["text"]:
-            face = add_text(
-                face,
-                (
-                    hole["coordinate"][0] + txt["offset"][0],
-                    hole["coordinate"][1] + txt["offset"][1],
-                ),
-                txt["body"],
-                txt["fontsize"]
-            )
+    for hole in wood_screw_holes:
+        face = (
+            face
+            .moveTo(*hole["coordinate"])
+            .hole(hole["diameter"])
+        )
     return face
 
 
 # list of all the panel modifying functions
 funcs = [
-    add_warning_text,
-    cut_voltage_switches,
     cut_voltage_lamps,
-    add_voltage_lamp_nums,
-    add_voltage_intensity_text,
-    add_big_voltage_labels,
-    add_small_voltage_labels,
     add_horizontal_lines,
+    add_small_vertical_bars,
+    cut_voltage_switches,
+    cut_misc_holes,
     cut_vernier_dials,
-    cut_misc_holes
 ]
 
 # store the times spent on each operation in a dict
@@ -354,7 +207,7 @@ start = timer()
 for output in output_files:
     exporters.export(panel, output)
 end = timer()
-func_times["export stl and step"] = end - start
+func_times["export output files"] = end - start
 
 # print out a summary of the time spent
 print("\nTime spent doing each task (seconds):\n")

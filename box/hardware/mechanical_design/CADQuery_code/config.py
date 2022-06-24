@@ -1,36 +1,27 @@
-from voltage_switch import Mossman_4PDT_Leaf_Switch
-from triangular_mounting_hole_components import Philmore_S36, Philmore_S50, Voltmeter_62C2
+
 import os
 
-# TODO: All dimensions are rough guesses. Once we have accurate dimensions,
-# they will need to be entered in the various fields in this file
+# TODO: Double check the panel and tweak as needed
+# The verier dials and voltmeter almost certanly need tweaks.
 
+# ALL DIMENSIONS ARE IN UNITS OF MILLIMETERS
+# ALL POSITIONS ARE RELATIVE TO THE CENTER OF THE PANEL
 
 ################################################################################
 #
 # PANEL DIMENSIONS
 #
 ################################################################################
-LENGTH = 1000
-HEIGHT = 500
+LENGTH = 914.4
+HEIGHT = 406.4
 THICKNESS = 1
 PANEL_SIZE = (LENGTH, HEIGHT, THICKNESS)
 
 X_ORIGIN = 0
 Y_ORIGIN = 0
 
-################################################################################
-#
-# TEXT AND FONT SIZES
-#
-################################################################################
-FONTSIZE_SMALL = 4
-FONTSIZE_MEDIUM = 6
-FONTSIZE_LARGE = 10
-
 LINE_WIDTH = 1
-
-ENGRAVE_DEPTH = 0.2
+ENGRAVE_DEPTH = -0.5
 
 ################################################################################
 #
@@ -41,254 +32,182 @@ ENGRAVE_DEPTH = 0.2
 #######################################
 # VOLTAGE SWITCHES
 #######################################
-NUM_VOLTAGE_SWITCHES = 30
-
-VOLTAGE_SWITCH_X_SPACING = 30
-
-VOLTAGE_SWITCH_CENTER_Y = -75
-
-switch = Mossman_4PDT_Leaf_Switch()
-
-#######################################
-# VOLTAGE SWITCH V. LABEL TEXT
-#######################################
-VOLTAGE_SWITCH_STARTING_VOLTAGE = 15
-VOLTAGE_SWITCH_VOLTAGE_STEP = 15
-VOLTAGE_LABEL_CENTER_Y = -25
-
-VOLTAGE_LABEL_BIG_TEXT_OFFSET = 3
-
-VOLTAGE_LABEL_SMALL_TEXT_OFFSET = 5
-
-VOLTAGE_LABEL_HORIZ_LINE_LENGTHS = [
-    95,
-    95,
-    95,
-    95,
-    95,
-    95,
-    95
-]
+voltage_switch = {
+    "num switches": 30,
+    "num rows": 1,
+    "x spacing": 25.4,
+    "y spacing": 1,
+    "center y": -60.5,
+    "slot length": 19.05,
+    "slot width": 4.7625,
+    "perpendicular": 90,
+    "starting voltage": 15,
+    "voltage step": 15
+}
 
 #######################################
-# VOLTAGE SWITCH INTENSITY TEXT
+# VOLTAGE SWITCH V. LABEL LINES
 #######################################
-LAST_VOLTAGE_INTENSITY_TEXT_POS = 26
 
-VOLTAGE_INTENSITY_TEXT_Y_SPACING = 10
+voltage_label_lines = {
+    "center y": -23.5,
+    "endpoints": [
+        (-364.9, -280.5),
+        (-262.0, -178.5),
+        (-159.7, -74.5),
+        (-56.6, 27.0),
+        (45.0, 128.5),
+        (146.3, 229.4),
+        (247.9, 327.5),
+    ]
+}
 
-TOP_OF_TWO = 5
-BOTTOM_OF_TWO = TOP_OF_TWO - VOLTAGE_INTENSITY_TEXT_Y_SPACING
+#######################################
+# VOLTAGE SWITCH INTENSITY LINES
+#######################################
 
-TOP_OF_THREE = TOP_OF_TWO
-MIDDLE_OF_THREE = BOTTOM_OF_TWO
-BOTTOM_OF_THREE = MIDDLE_OF_THREE - VOLTAGE_INTENSITY_TEXT_Y_SPACING
+voltage_intensity_lines = {
+    "center y": -106,
+    "endpoints": [
+        (-356.4, -292.0),
+        (-247.6, -184.4),
+        (-151.7, -94.8),
+        (-38.4, 17.5),
+        (53.1, 116.8),
+        (159.2, 209),
+        (262.2, 327.5)
+    ]
+}
 
-VOLTAGE_INTENSITY_HORIZ_LINE_LENGTHS = [
-    45,
-    45,
-    45,
-    45,
-    45,
-    45,
-    45
-]
+#######################################
+# SMALL VERTICAL BARS
+#######################################
 
-voltage_intensity_text = {
-    "center y": -150,
-    "label": [
-        [
-            {
-                "body": "SLIGHT",
-                "y offset": TOP_OF_TWO
-            },
-            {
-                "body": "SHOCK",
-                "y offset": BOTTOM_OF_TWO
-            }
-        ],
-        [
-            {
-                "body": "MODERATE",
-                "y offset": TOP_OF_TWO
-            },
-            {
-                "body": "SHOCK",
-                "y offset": BOTTOM_OF_TWO
-            }
-        ],
-        [
-            {
-                "body": "STRONG",
-                "y offset": TOP_OF_TWO
-            },
-            {
-                "body": "SHOCK",
-                "y offset": BOTTOM_OF_TWO
-            }
-        ],
-        [
-            {
-                "body": "VERY STRONG",
-                "y offset": TOP_OF_TWO
-            },
-            {
-                "body": "SHOCK",
-                "y offset": BOTTOM_OF_TWO
-            }
-        ],
-        [
-            {
-                "body": "INTENSE",
-                "y offset": TOP_OF_TWO
-            },
-            {
-                "body": "SHOCK",
-                "y offset": BOTTOM_OF_TWO
-            }
-        ],
-        [
-            {
-                "body": "EXTREME",
-                "y offset": TOP_OF_THREE
-            },
-            {
-                "body": "INTENSITY",
-                "y offset": MIDDLE_OF_THREE
-            },
-            {
-                "body": "SHOCK",
-                "y offset": BOTTOM_OF_THREE
-            }
-        ],
-        [
-            {
-                "body": "DANGER:",
-                "y offset": TOP_OF_TWO
-            },
-            {
-                "body": "SEVERE SHOCK",
-                "y offset": BOTTOM_OF_TWO
-            }
-        ],
-    ],
-    "fontsize": FONTSIZE_LARGE
+small_vertical_bars = {
+    "height": 10.5,
+    "x coord": 327.5,
 }
 
 #######################################
 # VOLTAGE LAMPS
 #######################################
 
-NUM_VOLTAGE_LAMPS = NUM_VOLTAGE_SWITCHES
-
-VOLTAGE_LAMP_DIAMETER = 16
-
-VOLTAGE_LAMP_CENTER_Y = 0
-
-VOLTAGE_LAMP_NUMS_CENTER_Y = VOLTAGE_LAMP_CENTER_Y + 15
-
-VOLTAGE_LAMP_X_SPACING = VOLTAGE_SWITCH_X_SPACING
-
-VOLTAGE_LAMP_Y_SPACING = 1
-
-VOLTAGE_LAMP_NUM_ROWS = 1
-
+voltage_lamp = {
+    "num lamps": voltage_switch["num switches"],
+    "num rows": voltage_switch["num rows"],
+    "x spacing": voltage_switch["x spacing"],
+    "y spacing": voltage_switch["y spacing"],
+    "lamp center y": 0,
+    "nums center y": 25,
+    "diameter": 12.7,
+}
 
 ################################################################################
 #
 # LARGE VERNIER DIALS AND VOLTMETER
 #
 ################################################################################
+
+philmore_S36 = {
+    "center hole dia": 6.3,
+    "mounting hole dist": 20,
+    "mounting hole dia": 3.2
+}
+
+philmore_S50 = {
+    "center hole dia": 6.3,
+    "mounting hole dist": 28,
+    "mounting hole dia": 3.2
+}
+
+voltmeter_62C2 = {
+    "center hole dia": 70,
+    "mounting hole dist": 38,
+    "mounting hole dia": 3.2
+}
+
 dials = {
     "attenuator": {
-        "model": Philmore_S36(),
-        "coordinate": (0, 75),
-        "text": [
-            {
-                "body": "ATTENUATOR",
-                "offset": (-50, 0),
-                "fontsize": FONTSIZE_MEDIUM
-            }
-        ]
+        "model": philmore_S36,
+        "coordinate": (23, 65),
     },
     "phase dial": {
-        "model": Philmore_S50(),
-        "coordinate": (150, 100),
-        "text": [
-            {
-                "body": "PHASE",
-                "offset": (0, 50),
-                "fontsize": FONTSIZE_LARGE
-            },
-            {
-                "body": "PULSE FREQUENCY",
-                "offset": (0, -35),
-                "fontsize": FONTSIZE_MEDIUM
-            }
-        ]
+        "model": philmore_S50,
+        "coordinate": (147, 95),
     },
     "voltmeter": {
-        "model": Voltmeter_62C2(),
-        "coordinate": (330, 125),
-        "text": [
-            {
-                "body": "VOLTAGE",
-                "offset": (0, -50),
-                "fontsize": FONTSIZE_LARGE
-            }
-        ]
+        "model": voltmeter_62C2,
+        "coordinate": (304.5, 106),
     }
 }
 
 ################################################################################
 #
-# MISC. HOLES AND SWITCHES
+# MISC. HOLES, LAMPS, AND SWITCHES
 #
 ################################################################################
 misc_holes = {
     "on off switch": {
-        "diameter": 16,
-        "coordinate": (-120, 100),
-        "text": [
-            {
-                "body": "MAIN POWER",
-                "offset": (0, -15),
-                "fontsize": FONTSIZE_MEDIUM
-            },
-            {
-                "body": "ON",
-                "offset": (-20, 0),
-                "fontsize": FONTSIZE_MEDIUM
-            },
-            {
-                "body": "OFF",
-                "offset": (20, 0),
-                "fontsize": FONTSIZE_MEDIUM
-            }
-        ]
+        "diameter": 12.7,
+        "coordinate": (-117.5, 87.5),
     },
     "on off lamp": {
-        "diameter": 16,
-        "coordinate": (-120, 150),
+        "diameter": 12.7,
+        "coordinate": (-117.5, 127.5),
         "text": []
     },
     "energizer lamp": {
-        "diameter": 16,
-        "coordinate": (0, 150),
-        "text": [
-            {
-                "body": "VOLTAGE",
-                "offset": (-50, 5),
-                "fontsize": FONTSIZE_MEDIUM
-            },
-            {
-                "body": "ENERGIZER",
-                "offset": (-50, -5),
-                "fontsize": FONTSIZE_MEDIUM
-            }
-        ]
+        "diameter": 12.7,
+        "coordinate": (20.6, 127.5),
     }
 }
+
+wood_screw_holes = [
+    # leftmost 4 holes
+    {
+        "diameter": 3,
+        "coordinate": (-395, -17.5)
+    },
+    {
+        "diameter": 3,
+        "coordinate": (-395, -33)
+    },
+    {
+        "diameter": 3,
+        "coordinate": (-395, -80)
+    },
+    {
+        "diameter": 3,
+        "coordinate": (-370, -33)
+    },
+    # middle left 2 holes
+    {
+        "diameter": 3,
+        "coordinate": (-104, -33)
+    },
+    {
+        "diameter": 3,
+        "coordinate": (-104, -80)
+    },
+    # middle right 2 holes
+    {
+        "diameter": 3,
+        "coordinate": (99, -33)
+    },
+    {
+        "diameter": 3,
+        "coordinate": (99, -80)
+    },
+    # rightmost 2 holes
+    {
+        "diameter": 3,
+        "coordinate": (383, -23.5)
+    },
+    {
+        "diameter": 3,
+        "coordinate": (383, -80)
+    },
+]
 
 ################################################################################
 #
@@ -301,5 +220,7 @@ os.makedirs(OUTPUT_FILE_DIR, exist_ok=True)
 
 output_files = [
     os.path.join(OUTPUT_FILE_DIR, "out.stl"),
-    os.path.join(OUTPUT_FILE_DIR, "out.step")
+    os.path.join(OUTPUT_FILE_DIR, "out.step"),
+    os.path.join(OUTPUT_FILE_DIR, "out.dxf"),
+    os.path.join(OUTPUT_FILE_DIR, "out.svg"),
 ]

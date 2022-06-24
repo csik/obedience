@@ -5,8 +5,10 @@
 ## Brief description:
 Two MAX6969 LED driver chips are driven by SPI.
 
-![pcb front](./pics/pcb_front.png)
-![pcb rear](./pics/pcb_rear.png)
+Open `index.html` in a browser for easy to navigate documentation and fabrication files.
+
+![pcb front](./docs/2D/led_breakout-top.jpg)
+![pcb rear](./docs/2D/led_breakout-bottom.jpg)
 
 ## Status of the project:
 

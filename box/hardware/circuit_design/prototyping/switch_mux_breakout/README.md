@@ -5,8 +5,10 @@
 ## Brief description:
 Two PCA9555D GPIO expander chips are driven by I2C.
 
-![pcb front](./pics/pcb_front.png)
-![pcb rear](./pics/pcb_rear.png)
+Open `index.html` in a browser for easy to navigate documentation and fabrication files.
+
+![pcb front](./docs/2D/switch_mux_breakout-top.jpg)
+![pcb rear](./docs/2D/switch_mux_breakout-bottom.jpg)
 
 ## Status of the project:
 

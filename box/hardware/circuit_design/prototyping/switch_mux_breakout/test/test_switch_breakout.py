@@ -129,7 +129,6 @@ class UI_Switches:
 
         # look from high to low for a switch that is on
         for i in reversed(range(self.NUM_V_SWITCHES)):
-            print(i)
             if ((n >> i) & 1) == 1:
                 return i + 1
 

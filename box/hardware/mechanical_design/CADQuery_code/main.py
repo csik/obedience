@@ -2,7 +2,7 @@ import cadquery as cq
 from cadquery import exporters
 from config import *
 from timeit import default_timer as timer
-
+import math
 
 panel = (
     cq.Workplane("XY").box(*PANEL_SIZE)
@@ -58,100 +58,71 @@ def cut_voltage_lamps(face):
     return face
 
 
-def add_horizontal_lines(face):
-    '''
-    Add the horizontal lines above and below the voltage switches
-    and return the modified face.
-    '''
-    def add_h_lines(face, endpoints, center_y):
-        for pts in endpoints:
-
-            center_x = (pts[0] + pts[1])/2
-            line_len = abs(pts[0] - pts[1])
-
-            face = (
-                face.
-                center(center_x, center_y)
-                .rect(
-                    line_len,
-                    LINE_WIDTH
-                )
-                .cutBlind(ENGRAVE_DEPTH)
-                .center(-center_x, -center_y)
-            )
-        return face
-
-    face = add_h_lines(
-        face,
-        voltage_label_lines["endpoints"],
-        voltage_label_lines["center y"]
-    )
-
-    face = add_h_lines(
-        face,
-        voltage_intensity_lines["endpoints"],
-        voltage_intensity_lines["center y"]
-    )
-
-    return face
-
-
-def add_small_vertical_bars(face):
-    '''
-    Add the small vertical bars at the rightmost ends
-    of the horizontal lines and return the modified face
-    '''
-    def add_v_lines(face, center_y):
-        center_x = small_vertical_bars["x coord"]
-
-        line_len = small_vertical_bars["height"]
-
-        face = (
-            face.
-            center(center_x, center_y)
-            .rect(
-                LINE_WIDTH,
-                line_len,
-            )
-            .cutBlind(ENGRAVE_DEPTH)
-            .center(-center_x, -center_y)
-        )
-        return face
-
-    face = add_v_lines(
-        face,
-        voltage_label_lines["center y"]
-    )
-
-    face = add_v_lines(
-        face,
-        voltage_intensity_lines["center y"]
-    )
-    return face
-
-
 def cut_vernier_dials(face):
     '''
-    Cut the vernier dials and the voltmeter and return the modified face.
+    Cut the vernier dials and return the modified face.
     '''
     for _, dial in dials.items():
         coord = dial["coordinate"]
+        model = dial["model"]
         face = (
             face
-            .center(*coord)
-            .polarArray(  # the triangular mounting holes
-                radius=dial["model"]["mounting hole dist"],
-                startAngle=90,
-                angle=120,
-                count=3,
-                fill=False
-            )
-            .hole(dial["model"]["mounting hole dia"])
-            .center(-coord[0], -coord[1])  # recenter the origin
-            .workplane()
+            # the center hole
             .moveTo(*coord)
-            .hole(dial["model"]["center hole dia"])  # the center hole
+            .hole(model["center hole dia"])
+
+            # the M3 hole at the top
+            .moveTo(coord[0], coord[1] + model["dist to top hole"])
+            .hole(model["mounting hole dia"])
+
+            # the two M3 holes on the bottom
+            .moveTo(
+                coord[0] + \
+                math.sin(model["bottom hole angle"]) * \
+                model["dist to bottom holes"],
+                coord[1] - \
+                math.cos(model["bottom hole angle"]) * \
+                model["dist to bottom holes"]
+            )
+            .hole(model["mounting hole dia"])
+
+            .moveTo(
+                coord[0] - \
+                math.sin(model["bottom hole angle"]) * \
+                model["dist to bottom holes"],
+                coord[1] - \
+                math.cos(model["bottom hole angle"]) * \
+                model["dist to bottom holes"]
+            )
+            .hole(model["mounting hole dia"])
         )
+    return face
+
+
+def cut_voltmeter(face):
+    '''
+    Cut the voltmeter and return the modified face.
+    '''
+    coord = voltmeter["coordinate"]
+
+    face = (
+        face
+        .center(*coord)
+        # the triangular mounting holes
+        .polarArray(
+            radius=voltmeter["mounting hole dist"],
+            startAngle=90,
+            angle=120,
+            count=3,
+            fill=False
+        )
+        .hole(voltmeter["mounting hole dia"])
+        # recenter the origin
+        .center(-coord[0], -coord[1])
+        # the big center hole
+        .moveTo(*coord)
+        .hole(voltmeter["center hole dia"])
+    )
     return face
 
 
@@ -176,14 +147,48 @@ def cut_misc_holes(face):
     return face
 
 
+def cut_mounting_holes(face):
+    '''
+    Cut some mounting holes around the perimeter of the panel.
+    '''
+    x_spacing_top_and_bottom = (PANEL_LENGTH - mounting_holes["dist from edge"]
+                                * 2) / (mounting_holes["num horizontal"] - 1)
+
+    y_spacing_top_and_bottom = PANEL_HEIGHT - \
+        mounting_holes["dist from edge"]*2
+
+    x_spacing_middle = PANEL_LENGTH - mounting_holes["dist from edge"] * 2
+
+    face = (
+        face
+        # one row on top and one on the bottom
+        .rarray(
+            x_spacing_top_and_bottom,
+            y_spacing_top_and_bottom,
+            mounting_holes["num horizontal"],
+            2
+        )
+        .hole(mounting_holes["hole dia"])
+        # two holes centered vertically on the far left and right
+        .rarray(
+            x_spacing_middle,
+            1,  # y-spacing = 1 when there is only one row
+            2,  # two total holes
+            1  # one row
+        )
+        .hole(mounting_holes["hole dia"])
+    )
+    return face
+
+
 # list of all the panel modifying functions
 funcs = [
     cut_voltage_lamps,
-    add_horizontal_lines,
-    add_small_vertical_bars,
     cut_voltage_switches,
     cut_misc_holes,
     cut_vernier_dials,
+    cut_voltmeter,
+    cut_mounting_holes
 ]
 
 # store the times spent on each operation in a dict

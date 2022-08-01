@@ -20,7 +20,8 @@ X_ORIGIN = 0
 Y_ORIGIN = 0
 
 # a few common hole sizes that show up a lot
-LAMP_HOLE_DIA = 14.2
+VOLTAGE_LAMP_HOLE_DIA = 14.2
+AUX_LAMP_HOLE_DIA = 17.5
 TOGGLE_SWITCH_HOLE_DIA = 12
 M3_HOLE_DIA = 3.2
 
@@ -56,7 +57,7 @@ voltage_lamp = {
     "y spacing": voltage_switch["y spacing"],
     "lamp center y": 0,
     "nums center y": 25,
-    "diameter": LAMP_HOLE_DIA,
+    "diameter": VOLTAGE_LAMP_HOLE_DIA,
 }
 
 ################################################################################
@@ -120,12 +121,12 @@ misc_holes = {
         "coordinate": (-114.5, 87.5),
     },
     "on off lamp": {
-        "diameter": LAMP_HOLE_DIA,
+        "diameter": AUX_LAMP_HOLE_DIA,
         "coordinate": (-114.5, 127.5),
         "text": []
     },
     "energizer lamp": {
-        "diameter": LAMP_HOLE_DIA,
+        "diameter": AUX_LAMP_HOLE_DIA,
         "coordinate": (21.5, 127.5),
     }
 }

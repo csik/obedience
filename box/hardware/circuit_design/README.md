@@ -11,4 +11,7 @@ There may also be a few other UI switches and LEDs in the final design
 The above elements will eventually be incorporated into a Raspberry Pi HAT, or otherwise interface with the 40 pin Pi GPIO header.
 
 ## Current state:
-- Prototyping and evaluating hardware, still early stages
+- Boards for reading the switches and driving the LEDs have been manufactured
+- Both boards have been briefly tested by connecting to a Raspberry Pi with jumper wires
+- Each board has an initial python library included to interact with the board
+  - The python drivers have a demo function included for an example of usage
